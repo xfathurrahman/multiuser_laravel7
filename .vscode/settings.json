@@ -1,0 +1,17 @@
+{
+    "phpcs.standard": "PSR2",
+    "phpcs.executablePath": "C:\\Users\\Santhiveerapandi\\AppData\\Roaming\\Composer\\vendor\\squizlabs\\php_codesniffer\\bin\\phpcs.bat",
+    "phpcs.ignorePatterns": [
+        "*/database/*",
+        "*/cache/*",
+        "*/*.js",
+        "*/*.css",
+        "*/*.xml",
+        "*/*.blade.php",
+        "*/autoload.php",
+        "*/storage/*",
+        "*/docs/*",
+        "*/vendor/*",
+        "*/migrations/*",
+    ],
+}
