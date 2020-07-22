@@ -21,6 +21,7 @@ Route::get('/', function () {
 
 Auth::routes();
 //
+Route::get('home', 'HomeController@index');
 
 /*Before Login Pages Starts */
 //Client user Login Form & Post
@@ -37,15 +38,13 @@ Route::post('clients/registration', 'ClientsController@registration')
 ->name('clients.registration');
 Route::get('/permission-denied', 'AdminsController@permissionDenied')
 ->name('nopermission');
+Route::get('country/state/{id}', 'CountryController@state')
+    ->where(['id' => '[0-9]+']);
 /*Before Login Pages Ends */
 
-Route::group(['auth'], function () {
+Route::group(['middleware'=>['auth']], function () {
     //Authenticated but not in admin guards
-    Route::get('country/state/{id}', 'CountryController@state')
-    ->where(['id' => '[0-9]+']);
-    Route::get('clients/allclients', 'ClientsController@allclients')
-    ->name('allclients');
-    
+   
     //Admin and client user can list of user
     Route::get('user/userlist', 'UserController@userlist')
                 ->name('user.listuser');
@@ -54,7 +53,8 @@ Route::group(['auth'], function () {
                 ->name('user.register');
     Route::post('registerstore', 'UserController@registerstore')
                 ->name('user.registerstore');
-
+    /* Route::get('clients/allclients', 'ClientsController@allclients')
+        ->name('allclients'); */
     // Route::resource('book', 'BookController'); pending
 
     //Admin, Client and User can create, modify, delete book
@@ -63,9 +63,9 @@ Route::group(['auth'], function () {
         Route::resource('admin', 'AdminsController');
         Route::resource('clients', 'ClientsController');
         Route::resource('book', 'BookController');
+        // Route::resource('users', 'UserController');
+        // Route::resource('roles', 'RoleController');
         Route::get('user', 'UserController@index');
-            /*Route::get('admin/profile', function () {
-            })->withoutMiddleware([CheckAge::class]);*/
     });
 
     Route::group(['middleware'=> ['clients']], function () {
@@ -73,16 +73,15 @@ Route::group(['auth'], function () {
         Route::get('ownclientbooklist', 'BookController@clientBookList')->name('ownclientbooklist');
         Route::get('ownclientbookcreate', 'BookController@clientBookCreate')->name('ownclientbookcreate');
         Route::post('ownclientbookcreate', 'BookController@clientBookStore')->name('ownclientbookcreate');
+        Route::resource('user', 'UserController');
     });
 
     Route::group(['middleware'=> ['user']], function () {
         Route::get('userprofile/{id}', 'UserController@profile')->where(['id' => '[0-9]+']);
         // Route::get('/home', 'HomeController@index')->name('home');
-        /* Route::resource('user', 'UserController')->except(
-            ['index','create','destroy']); */
-            //Edit & Delete Pending
-        Route::get('ownbooklist', 'BookController@userBookList')->name('ownbooklist');
+        //Edit & Delete Pending
+        /* Route::get('ownbooklist', 'BookController@userBookList')->name('ownbooklist');
         Route::get('ownbookcreate', 'BookController@userBookCreate')->name('ownbookcreate');
-        Route::post('ownbookcreate', 'BookController@userBookStore')->name('ownbookcreate');
+        Route::post('ownbookcreate', 'BookController@userBookStore')->name('ownbookcreate'); */
     });
 });

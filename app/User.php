@@ -5,8 +5,9 @@ namespace App;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
-// use App\Events\UserCreatedEvent;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -19,8 +20,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'first_name', 'middle_name', 'last_name', 'client_id',
-        'state_id', 'country_id', 'dob', 'address', 'pincode',
-        'name', 'email', 'password'
+        'state_id', 'country_id', 'address', 'mobile', 'gender',
+        'name', 'email', 'password', 'city', 'profile_image'
     ];
 
     //Event Listener for user creation
@@ -46,19 +47,61 @@ class User extends Authenticatable
     ];
     
     //User Creation rules
-    public static $rules =[
-        'first_name'=> 'required|string|max:191',
-        'middle_name'=> 'required|string|max:191',
-        'last_name'=> 'required|string|max:191',
-        'client_id'=> 'required|integer',
-        'dob'=> 'required|date',
-        'state_id'=> 'required|integer',
-        'country_id'=> 'required|integer',
-        'address'=> 'required|max:200',
-        'name'=> 'required|string|unique:users|max:191',
-        'email'=> 'required|string|email|unique:users|max:191',
-        'password'=> 'required|string|max:15'
-    ];
+    /* public static $rules =[
+        'first_name'=> [ 'string', 'max:191'],
+        'middle_name'=> [ 'string', 'max:191'],
+        'last_name'=> [ 'string', 'max:191'],
+        'client_id'=> ['required', 'integer'],
+        'state_id'=> ['required', 'integer'],
+        'country_id'=> ['required', 'integer'],
+        'address'=> ['required', 'max:200'],
+        'name'=> ['required', 'string', 'max:191', 'unique:users'],
+        'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
+        'password' => ['required', 'string', 'min:8', 'max:15'],
+        'password_confirmation' => ['required', 'string', 'min:8', 'max:15', 'same:password'],
+    ]; */
+    public function uploadAvatarOnly($image)
+    {
+        $filename = $image->getClientOriginalName();
+        //store new file
+        $image->storeAs('profile_images', $filename, 'public');
+    }
+    public static function uploadAvatar($image, $create = null)
+    {
+        $filename = $image->getClientOriginalName();
+        (isset($create['name']))? null: (new self())->deleteOldImage();
+        
+        $create['profile_image'] = $filename;
+        //store new file
+        $image->storeAs('profile_images', $filename, 'public');
+        if (!isset($create['name'])) {
+            $id=Auth::user()->id;
+            User::where('id', $id)->update(['profile_image'=>$filename]);
+        } else {
+            $id=isset($create['client_id'])?$create['client_id']: Auth::user()->client_id;
+            $create['hobbies']      = implode(",", $create["hobbies"]);
+            $create['password']     = Hash::make($create['password']);
+            $create['role']         = isset($create['role'])? $create['role']: '3';
+            $create['client_id']    = $id;
+            (new self())::create($create);
+        }
+    }
+
+    protected function deleteOldImage()
+    {
+        //Delete existing profile image file
+        if (Auth::user()->profile_image) {
+            Storage::delete('/public/profile_images/'.Auth::user()->profile_image);
+        }
+    }
+
+    protected function deleteImage()
+    {
+        //Delete existing profile image file
+        if (Auth::user()->profile_image) {
+            Storage::delete('/public/profile_images/'.Auth::user()->profile_image);
+        }
+    }
 
     public function roles()
     {
@@ -76,7 +119,7 @@ class User extends Authenticatable
 
     public function clients()
     {
-        return $this->hasOne('App\Model\Clients', 'client_id');
+        return $this->belongsTo('App\Model\Clients', 'client_id');
     }
 
     public function country()

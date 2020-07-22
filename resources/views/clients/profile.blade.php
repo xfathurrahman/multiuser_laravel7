@@ -6,7 +6,7 @@
       <div class="col-12">
         <div class="card card-primary">
           <div class="card-header ">
-            <h3 class="card-title">{{ __('Client Profile') }}</h3>
+            <h3 class="card-title">{{ __('Customer Profile') }}</h3>
 
             <div class="card-tools">
               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
@@ -38,9 +38,9 @@
 
 
                 <div class="form-group row">
-                    <label for="dob" class="col-md-4 col-form-label text-md-right">{{ __('DOB') }} : </label>
+                    <label for="dob" class="col-md-4 col-form-label text-md-right">{{ __('Mobile') }} : </label>
                     <div class="col-md-6">
-                        {{date('Y-m-d', strtotime($clients->dob))}}
+                        {{$clients->mobile}}
                     </div>
                 </div>
 
@@ -68,9 +68,9 @@
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-md-4 col-form-label text-md-right">{{ __('Pincode') }}: </label>
+                    <label class="col-md-4 col-form-label text-md-right">{{ __('City') }}: </label>
                     <div class="col-md-6">
-                        {{$clients->pincode}}
+                        {{$clients->city}}
                     </div>
                 </div>
 

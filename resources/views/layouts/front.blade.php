@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8">
     <!--====== Title ======-->
-    <title>{{ config('app.name') }} |Book Management System</title>
+    <title>{{ config('app.name') }} | Customer Management System</title>
     <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!--====== Favicon Icon ======-->
     <link rel="shortcut icon" href="{{ asset('frontpage/assets/images/favicon.png" type="image/png') }}">
@@ -33,6 +33,32 @@
             color: #007bff !important;
             font-size: inherit;
         }
+
+        #navbarTwo > ul > li> a#navbarDropdown .dropdown-menu {
+            opacity: .5;
+            visibility: hidden;
+
+        }
+        #navbarTwo > ul > li:hover .dropdown-menu   {
+            opacity: 1;
+            visibility: display !important;
+            display:block !important;
+        }
+        @media (max-width: 768px)
+        {
+            #navbarTwo > ul > li.nav-item .dropdown-menu {
+                opacity: .5;
+                visibility: hidden;
+            }
+            #navbarTwo > ul > li..nav-item:hover .dropdown-menu   {
+                opacity: 1;
+                visibility: display !important;
+                display:block !important;
+            }
+        }
+        
+
+
         .footer-area {
             padding: 0px;
         }
@@ -47,7 +73,7 @@
         }
     </style>
      <!--====== Jquery js ======-->
-     <script src="{{ asset('frontpage/assets/js/vendor/jquery-1.12.4.min.js') }}"></script>
+    <script src="{{ asset('frontpage/assets/js/vendor/jquery-1.12.4.min.js') }}"></script>
     <script src="{{ asset('frontpage/assets/js/vendor/modernizr-3.7.1.min.js') }}"></script>
     
 </head>
@@ -84,92 +110,92 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <nav class="navbar navbar-expand-lg">
-                       
-                        <a class="navbar-brand" href="#">
-                            <img src="{{ asset('frontpage/assets/images/logo.svg') }}" alt="Logo">
-                        {{ config('app.name') }}
-                        </a>
-                        
+<nav class="navbar navbar-expand-lg">
 
-                        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTwo" aria-controls="navbarTwo" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="toggler-icon"></span>
-                            <span class="toggler-icon"></span>
-                            <span class="toggler-icon"></span>
-                        </button>
+<a class="navbar-brand" href="#">
+    <img src="{{ asset('frontpage/assets/images/logo.svg') }}" alt="Logo">
+{{ config('app.name') }}
+</a>
 
-                        <div class="collapse navbar-collapse sub-menu-bar" id="navbarTwo">
-                            <ul class="navbar-nav m-auto">
-                       <!-- Authentication Links -->
-                        @if (Route::has('login'))
-                            @auth
-                                <!-- @if(Auth::user()->role===1) {{$admin='admin'}} @endif
-                                @if(Auth::user()->role===2) {{$admin='clients'}} @endif
-                                @if(Auth::user()->role===3) {{$admin='user'}} @endif -->
 
-                                <li class="nav-item active">
-                                    @if(Auth::user()->role===2)
-                                    <a class="page-scroll" href="{{ url('clientsprofile/'.Auth::user()->id) }}">Home</a>
-                                    @elseif(Auth::user()->role===3)
-                                    <a class="page-scroll" href="{{ url('userprofile/'.Auth::user()->id) }}">Home</a>
-                                    @else
-                                    <a class="page-scroll" href="{{route('admin.index')}}">Home</a>
-                                    @endif
-                                </li>
-                                  
-                            @else
-                                <!-- <li class="nav-item">
-                                    <a class="page-scroll" href="#contact">Contact</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="page-scroll" 
-                                    href="{{ route('login') }}">Login</a>
-                                </li> -->
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTwo" aria-controls="navbarTwo" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="toggler-icon"></span>
+    <span class="toggler-icon"></span>
+    <span class="toggler-icon"></span>
+</button>
 
-                            <li class="nav-item dropdown font-clr">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                {{ __('Login') }} <span class="caret"></span>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="page-scroll dropdown-item" href="{{ url('login/clients') }}">
-                                        {{ __('Client') }}
-                                    </a>
-                                    <a class="page-scroll dropdown-item" href="{{ route('login') }}">
-                                        {{ __('User') }}
-                                    </a>
-                                </div>
-                            </li>
-                            @if (Route::has('register'))
-                            <li class="nav-item dropdown font-clr">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                {{ __('Registration') }} <span class="caret"></span>
-                                </a>
+<div class="collapse navbar-collapse sub-menu-bar" id="navbarTwo">
+    <ul class="navbar-nav m-auto">
+<!-- Authentication Links -->
+@if (Route::has('login'))
+    @auth
+        <!-- @if(Auth::user()->role===1) {{$admin='admin'}} @endif
+        @if(Auth::user()->role===2) {{$admin='clients'}} @endif
+        @if(Auth::user()->role===3) {{$admin='user'}} @endif -->
 
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="page-scroll  dropdown-item" href="{{ route('clients.register') }}">
-                                        {{ __('Client') }}
-                                    </a>
-                                    <a class="page-scroll dropdown-item" href="{{ route('register') }}">
-                                        {{ __('User') }}
-                                    </a>
-                                </div>
-                                
-                            </li>
-                            @endif
-                        
+        <li class="nav-item active">
+            @if(Auth::user()->role===2)
+            <a class="page-scroll" href="{{ url('clientsprofile/'.Auth::user()->id) }}">Home</a>
+            @elseif(Auth::user()->role===3)
+            <a class="page-scroll" href="{{ url('userprofile/'.Auth::user()->id) }}">Home</a>
+            @else
+            <a class="page-scroll" href="{{route('admin.index')}}">Home</a>
+            @endif
+        </li>
+            
+    @else
+        <!-- <li class="nav-item">
+            <a class="page-scroll" href="#contact">Contact</a>
+        </li>
+        <li class="nav-item">
+            <a class="page-scroll" 
+            href="{{ route('login') }}">Login</a>
+        </li> -->
+
+    <li class="nav-item dropdown font-clr">
+        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+        {{ __('Login') }} <span class="caret"></span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+            <a class="page-scroll dropdown-item" href="{{ url('login/clients') }}">
+                {{ __('Customer') }}
+            </a>
+            <a class="page-scroll dropdown-item" href="{{ route('login') }}">
+                {{ __('User') }}
+            </a>
+        </div>
+    </li>
+    @if (Route::has('register'))
+    <li class="nav-item dropdown font-clr">
+        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+        {{ __('Registration') }} <span class="caret"></span>
+        </a>
+
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+            <a class="page-scroll  dropdown-item" href="{{ route('clients.register') }}">
+                {{ __('Customer') }}
+            </a>
+            <a class="page-scroll dropdown-item" href="{{ route('register') }}">
+                {{ __('User') }}
+            </a>
+        </div>
+        
+    </li>
+    @endif
+
 <!-- 
-                                @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="page-scroll" href="{{ route('register') }}">Register</a>
-                                </li>
-                                @endif -->
-                            @endauth
-                            
-                        @endif
-                            </ul>
-                        </div>
+        @if (Route::has('register'))
+        <li class="nav-item">
+            <a class="page-scroll" href="{{ route('register') }}">Register</a>
+        </li>
+        @endif -->
+    @endauth
+    
+@endif
+    </ul>
+</div>
 
-                    </nav> <!-- navbar -->
+</nav> <!-- navbar -->
                 </div>
             </div> <!-- row -->
         </div> <!-- container -->
@@ -193,7 +219,7 @@
                             <div class="col-lg-6">
                                 <div class="slider-content">
                                     <h1 class="title">
-                                    Book Management System</h1>
+                                    Customer Management System</h1>
                                     <p class="text">We blend insights and strategy to create digital products for forward-thinking organisations.</p>
                                     
                                 </div>
@@ -275,7 +301,7 @@
                     </ul> <!-- social -->
                     <div class="footer-support text-center">
                         <span class="number">+919498017460</span>
-                        <span class="mail">santhiveerapandi@gmail.com</span>
+                        <span class="mail">santhipandi@ymail.com</span>
                     </div>
                     <div class="copyright text-center mt-35">
                         <p class="text"> </p>

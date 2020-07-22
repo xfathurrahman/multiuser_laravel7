@@ -58,15 +58,17 @@ class Handler extends ExceptionHandler
      * @return \Symfony\Component\HttpFoundation\Response
      *
      * @throws \Throwable
+     *
      */
-    public function render($request, Throwable $exception)
+     public function render($request, Throwable $exception)
     {
         return parent::render($request, $exception);
     }
+
     /* public function render($request, Exception $exception)
     {
-        if ( $exception instanceof \App\Exceptions\CustomException ) {
-            return $exception->render($request);
+        if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
+            return response()->json(['User have not permission for this page access.']);
         }
         return parent::render($request, $exception);
     } */

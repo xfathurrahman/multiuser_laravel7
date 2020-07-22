@@ -15,22 +15,27 @@ class CreateClientsTable extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->string('first_name')->comment('First name');    
-            $table->string('middle_name')->comment('Middle name');
-            $table->string('last_name')->comment('Last name');
-            $table->datetime('dob')->comment('Date Of Birth');
+            $table->string('first_name')->nullable()->comment('First name');    
+            $table->string('middle_name')->nullable()->comment('Middle name');
+            $table->string('last_name')->nullable()->comment('Last name');
+            
+            $table->string('profile_image')->nullable();
+            $table->string('gender', '15');
+            $table->string('hobbies')->nullable();
             $table->string('address', '200')->comment('Address');
-            $table->integer('state_id')->comment('State');
-            $table->integer('country_id')->comment('Country');
-            $table->string('pincode', '10')->comment('Pincode');
 
+            $table->integer('country_id')->comment('Country');
+            $table->integer('state_id')->comment('State');
+            $table->string('city', '100')->comment('City');
+            $table->string('mobile', '15')->comment('Mobile Number');
+            
             $table->string('name')->unique()->comment('already register Username not allowed');
             $table->string('email')->unique()->comment('already register email ID not allowed');
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('last_login')->nullable();
             $table->string('ip_address', '50')->nullable();
             $table->string('password');
-            $table->boolean('is_editor')->default(false);
+            $table->boolean('is_editor')->default(true)->nullable();
             $table->rememberToken();
             $table->enum('status', ['0', '1'])->default('1')->comment('Active user only login');
             $table->timestamps();

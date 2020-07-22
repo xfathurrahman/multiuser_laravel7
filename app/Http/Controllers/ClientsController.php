@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Exceptions\CustomException;
 use App\Http\Resources\ClientsResource;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Carbon;
 
 class ClientsController extends Controller
 {
@@ -38,9 +39,8 @@ class ClientsController extends Controller
     
     public function register()
     {
-        $countries=Country::all();
-        $states=State::all();
-        return view('clients.register', compact('countries', 'states'));
+        $countries  = Country::all();
+        return view('clients.register', compact('countries'));
     }
 
     public function registration(Request $request)
@@ -53,18 +53,25 @@ class ClientsController extends Controller
                     ->withErrors($validator->errors())->withInput();
                 // return $this->sendError('Validation Error.', $validator->errors());
             }
-            $input['password']  = Hash::make($input['password']);
-            $Client             = Clients::create($input);
+        
+            if ($request->hasFile('profile_image')) {
+                Clients::uploadAvatar($request->profile_image, $input);
+                return redirect()->route('user.index')->with('success', 'Customer created successfully');
+            } else {
+                $input['hobbies']   = implode(",", $input["hobbies"]);
+                $input['password']  = Hash::make($input['password']);
+                $Client             = Clients::create($input);
+            }
         } catch (CustomException $exception) {
-            // dd($exception);
             $exception->report($request);
             // return back()->withError($exception->getMessage())->withInput();
         }
         
         return redirect('login')->with(
             [
-                'success'=>true,
-                'message'=>'Client Registered Successfully']
+            'success'=>true,
+            'message'=>'Client Registered Successfully'
+            ]
         );
     }
 
@@ -89,14 +96,15 @@ class ClientsController extends Controller
             $success['client_id'] =$user->client_id;
             $userlist=Clients::where('email', $user->email)->update(
                 [
-                'last_login'=> date('Y-m-d H:i:s')
+                   'last_login' => Carbon::now()->toDateTimeString(),
+                   'ip_address' => $request->getClientIp()
                 ]
             );
-            $userlist=User::where('email', $user->email)->update(
+            /* $userlist=User::where('email', $user->email)->update(
                 [
                     'last_login'=> date('Y-m-d H:i:s')
                 ]
-            );
+            ); */
                     
                 return redirect('clientsprofile/'.$user->id)
                     ->with(['status'=>'Successfully Logged in as Client!']);
@@ -143,8 +151,8 @@ class ClientsController extends Controller
     public function create()
     {
         $countries=Country::all();
-        $states=State::all();
-        return view('clients.create', compact('countries', 'states'));
+        // $states=State::all();
+        return view('clients.create', compact('countries'));
     }
 
     /**
@@ -201,13 +209,13 @@ class ClientsController extends Controller
      * @param  \App\Model\Clients $clients
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Clients $client)
     {
-        $clients       = Clients::find($id);
+        $clients       = $client;//Clients::find($id);
         // $country_name   = Country::find($users->country_id);
-        $countryname   = $clients->country;
+        $countryname   = $client->country;
         // $state_name     = State::find($users->state_id);
-        $statename     = $clients->states;
+        $statename     = $client->states;
 
         // dd($clients, $countryname, $statename);
         return view('clients.show')->with(

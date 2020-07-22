@@ -57,7 +57,7 @@
 <!-- overlayScrollbars -->
 <script src="{{ asset('admin/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') }}"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="{{ asset('admin/dist/js/pages/dashboard.js') }}"></script>
+<!-- <script src="{{ asset('admin/dist/js/pages/dashboard.js') }}"></script> -->
 
 
 </head>
@@ -145,7 +145,11 @@
           <img src="{{ asset('admin/upload/user_img/20200319_092004.jpg') }}" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a href="#" class="d-block">{{ Auth::user()->name }}</a>
+        @if(Auth::user()->role==2)
+          <a href="{{url('clientprofile/'.Auth::user()->id)}}" class="d-block">{{ Auth::user()->name }}</a>
+        @elseif(Auth::user()->role==3)
+          <a href="{{url('userprofile/'.Auth::user()->id)}}" class="d-block">{{ Auth::user()->name }}</a>
+        @endif
         </div>
       </div>
 
@@ -169,7 +173,7 @@
               <li class="nav-item">
                 <a href="{{ route('clients.index') }}" class="nav-link @if(Route::is('clients.index')) active @endif">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Client List & Permission</p>
+                  <p>Client List </p>
                 </a>
               </li>
               <li class="nav-item">
@@ -182,8 +186,8 @@
           </li>
           @endif
           @if(Auth::User()->role===1 || Auth::User()->role===2)
-          <li class="nav-item has-treeview @if(Route::is('user.register') || Route::is('user.listuser')) menu-open @endif ">
-            <a href="#" class="nav-link @if(Route::is('user.register') || Route::is('user.listuser')) active @endif">
+          <li class="nav-item has-treeview @if(Route::is('user.create') || Route::is('user.listuser')) menu-open @endif ">
+            <a href="#" class="nav-link @if(Route::is('user.create') || Route::is('user.listuser')) active @endif">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
                  User Module
@@ -194,11 +198,11 @@
               <li class="nav-item">
                 <a href="{{ route('user.listuser') }}" class="nav-link @if(Route::is('user.listuser')) active @endif">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>User List & Permission</p>
+                  <p>User List </p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{{ route('user.register') }}" class="nav-link @if(Route::is('user.register')) active @endif">
+                <a href="{{ route('user.create') }}" class="nav-link @if(Route::is('user.create')) active @endif">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Creation</p>
                 </a >
@@ -210,43 +214,8 @@
 
         @if(Auth::User()->role===1 || Auth::User()->role===2 
         || Auth::User()->role===3  )
-          <li class="nav-item has-treeview @if(Route::is('ownclientbooklist') || Route::is('ownclientbookcreate') || Route::is('ownbooklist') || Route::is('ownbookcreate') || Route::is('book.index') || Route::is('book.create')) menu-open @endif">
-            <a href="#" class="nav-link @if(Route::is('ownclientbooklist') || Route::is('ownclientbookcreate') || Route::is('ownbooklist') || Route::is('ownbookcreate') || Route::is('book.index') 
-            || Route::is('book.create')) active @endif">
-              <i class="nav-icon fas fa-tachometer-alt"></i>
-              <p>Book Module<i class="right fas fa-angle-left"></i></p>
-            </a>
-
             @if(Auth::User()->role===3)
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{{ route('ownbooklist') }}" class="nav-link 
-                @if( Route::is('ownbooklist')) active @endif">
-                  <i class="far fa-circle nav-icon"></i><p>Book List</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('ownbookcreate') }}" class="nav-link
-                @if( Route::is('ownbookcreate')) active @endif">
-                  <i class="nav-icon fas fa-th"></i><p>Book Creation</p>
-                </a>
-              </li>
-            </ul>
             @elseif(Auth::User()->role==2)
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{{ route('ownclientbooklist') }}" class="nav-link 
-                @if( Route::is('ownclientbooklist')) active @endif">
-                  <i class="far fa-circle nav-icon"></i><p>Book List</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="{{ route('ownclientbookcreate') }}" class="nav-link
-                @if( Route::is('ownclientbookcreate')) active @endif">
-                  <i class="nav-icon fas fa-th"></i><p>Book Creation</p>
-                </a>
-              </li>
-            </ul>
             @elseif(Auth::User()->role===1)
             <ul class="nav nav-treeview">
               <li class="nav-item">
@@ -265,6 +234,8 @@
             @endif
           </li>
           @endif
+
+
         </ul>
       </nav>
       <!-- /.sidebar-menu -->

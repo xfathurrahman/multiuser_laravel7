@@ -10,7 +10,7 @@ class Country extends Model
     protected $guarded = [];
     protected $fillable = ['name', 'sortname', 'phonecode'];
 
-    public function users()
+    /* public function users()
     {
         return $this->hasOne('App\Model\Country');
     }
@@ -18,7 +18,7 @@ class Country extends Model
     public function clients()
     {
         return $this->hasOne('App\Model\Country');
-    }
+    } */
 
     public function states()
     {

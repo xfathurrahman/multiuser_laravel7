@@ -2,196 +2,149 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
-use App\Model\Clients;
-use App\Model\State;
-use App\Model\Country;
-use Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\UserResource;
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\UserCreateRequest;
+use App\Http\Requests\UserUpdateRequest;
+use App\Model\Clients;
+use App\Model\State;
+use App\Model\Country;
+use Validator;
+use App\User;
+use DB;
 
-class UserController extends BaseController //Controller
+class UserController extends BaseController
 {
-    //User Creation Form Show
-    public function register()
+    public function index(Request $request)
     {
-        $clients   = Clients::all();
-        $countries = Country::all();
-        $states    = State::all();
-        return view('user.register', compact('clients', 'countries', 'states'));
+        $loginid=Auth::user()->id;
+        $data = User::where('id', '<>', $loginid)->orderBy('id', 'DESC')->paginate(5);
+        return view('user.index', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5);
     }
-
-    //User Creation Store in DB both Client and Admin Login
-    public function registerstore(Request $request)
+    /**
+     * Show the form for creating a new resource.
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
     {
-        try {
-            $input      = $request->all();
-            $validator  = Validator::make($input, User::$rules);
-            if ($validator->fails()) {
-                return $this->sendError('Validation Errors', [$validator->errors()], 201);
-            }
-            $input['role']      = '3';
-            $input['password']  = Hash::make($input['password']);
-            $Client             = User::create($input);
-        } catch (CustomException $exception) {
-            $exception->report($request);
-            return $this->sendError($exception->getMessage(), [$exception->getMessage()], 201);
-        }
-        return $this->sendResponse(['id'=>$Client->id], 'User created Successfully..');
-    }
-
-    //User Registration Before Login
-    public function registration(Request $request)
-    {
-        try {
-            $input      = $request->all();
-            $validator  = Validator::make($input, User::$rules);
-            if ($validator->fails()) {
-                return redirect()->back()
-                    ->withErrors($validator->errors())->withInput();
-            }
-            $input['role']      = '3';
-            $input['password']  = Hash::make($input['password']);
-            $Client             = User::create($input);
-        } catch (CustomException $exception) {
-            // dd($exception);
-            $exception->report($request);
-        }
-        
-        return redirect('login')->with(
-            [
-                'success'=>true,
-                'message'=>'User created Successfully']
-        );
+        // $roles = Role::pluck('name', 'name')->all();
+        $countries=Country::all();
+        return view('user.create', compact('countries'));
     }
     
-    //User Login Profile(home) Landing Page
-    public function profile($id)
+    /**
+     ** Store a newly created resource in storage.
+     ** @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(UserCreateRequest $request)
     {
-        $users          = User::find($id);
-        if (!is_null($users) && is_object($users)) {
-            $countryname   = $users->country;
-            $statename     = $users->states;
+        $input      = $request->all();
+        if ($request->hasFile('profile_image')) {
+            User::uploadAvatar($request->profile_image, $input);
+            return redirect()->route('user.index')->with('success', 'User created successfully');
         } else {
-            $countryname   = null;
-            $statename     = null;
+            $input['hobbies']      = implode(",", $input["hobbies"]);
+            $input['password']     = Hash::make($input['password']);
+            $input['role']         = '3';
+            $input['client_id']    = Auth::user()->client_id;
+            $user                  = User::create($input);
+            return redirect()->route('user.index')->with('success', 'User created successfully');
         }
-        return view('user.profile')->with(
-            ['user'     => $users,
-            'country'   => $countryname,
-            'state'     => $statename
-            ]
-        );
+    }
+    
+    /**
+     * Display the specified resource.
+     * @param  int  $id* @return \Illuminate\Http\Response
+     */
+    public function show(User $user)
+    {
+        $countries  = Country::find($user->country_id);
+        $states     = State::find($user->state_id);
+        return view('user.show', compact('user', 'countries', 'states'));
+    }
+    
+    /**
+     * Show the form for editing the specified resource.
+     * @param  int  $id* @return \Illuminate\Http\Response
+     */
+    public function edit(User $user)
+    {
+        $countries=Country::all();
+        $states=State::find($user->state_id);
+        return view('user.edit', compact('user', 'countries', 'states'));
+    }
+    
+    /**;
+     * Update the specified resource in storage.
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(UserUpdateRequest $request, User $user)
+    {
+        $input      = $request->except(['_method', '_token']);
+        // dd($input, $request->hasFile('profile_image'));
+        if ($request->hasFile('profile_image')) {
+            User::uploadAvatar($request->profile_image, null);
+        } else {
+            $input['hobbies']      = implode(",", $input["hobbies"]);
+            User::where('id', $user->id)->update($input);
+        }
+        return redirect()->route('user.index')->with('success', 'User updated successfully');
+    }
+    
+    /*** Remove the specified resource from storage.** @param  int  $id
+     * * @return \Illuminate\Http\Response
+     */
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return redirect(route('user.index'))->with('success', 'User deleted successfully');
     }
 
-    /*If User.Index Route unable to access then use userlist function
-    (client & admin users point of view of normal users)*/
+    //If User.Index Route unable to access then use userlist function
+    //(client & admin users point of view of normal users)
     public function userlist()
     {
         $loginuser=Auth::user();
         if ($loginuser->role === 2) {
             $clients=Clients::where('email', Auth::user()->email)->first();
             if (!is_null($clients)) {
-                $users=User::where('client_id', $clients->id)->get();
+                $data=User::where('client_id', $clients->id)->get();
             } else {
-                $users=null;
+                $data=null;
             }
         }
         if ($loginuser->role === 1) {
-            $users=User::where('role', '3')->get();
+            $data=User::where('role', '3')->get();
         }
-
-        if (!is_null($users)) {
+        if (!is_null($data)) {
             return view('user.index')->with(
-                ['users'=>UserResource::collection($users)]
+                ['data'=>UserResource::collection($data)]
             );
         } else {
             return view('user.index')->with(
-                ['users'=>UserResource::collection([])]
+                ['data'=>UserResource::collection([])]
             );
         }
     }
-
-    //Client Role Users able to see the Users list
-    public function clientindex()
-    {
-        $loginuser=Auth::user();
-        $users=User::where('role', '3')->where('client_id', $loginuser->id)->get();
-        return view('user.index')->with(
-            ['users'=>UserResource::collection($users)]
-        );
-    }
-
-    //Still not used
-    public function index()
-    {
-        $loginuser=Auth::user();
-        if (!is_null($loginuser)) {
-            // if($loginuser->role === 3)normal user show only self profile
-            if ($loginuser->role === 2) {
-                $users=User::where('role', '3')
-                    ->where('client_id', $loginuser->id)->get();
-            }
-            if ($loginuser->role === 1) {
-                $users=User::where('role', '3')->get();
-            }
-            //$users=User::where('role', '3')->get();
-        } else {
-            $users= [];
-        }
-        
-        return view('user.index')->with(
-            ['users'=>UserResource::collection($users)]
-        );
-    }
-
-    //Still not used
-    public function create()
-    {
-        $countries=Country::all();
-        $states=State::all();
-        return view('clients.create', compact('countries', 'states'));
-    }
-
-    public function store(Request $request)
-    {
-        try {
-            $input      = $request->all();
-            $validator  = Validator::make($input, User::$rules);
-            if ($validator->fails()) {
-                return $this->sendError('Validation Errors', [$validator->errors()], 201);
-            }
-            $input['role']      = 3;
-            $input['password']  = Hash::make($input['password']);
-            $Client             = User::create($input);
-        } catch (CustomException $exception) {
-            $exception->report($request);
-            return $this->sendError($exception->getMessage(), [$exception->getMessage()], 201);
-        }
-        return $this->sendResponse(
-            ['id'=>$Client->id],
-            'User created Successfully..'
-        );
-    }
-
-    public function show($id)
+    
+    public function profile($id)
     {
         $users          = User::find($id);
-        if (!is_null($users) && is_object($users)) {
-            $countryname   = $users->country;
-            $statename     = $users->states;
-        } else {
-            $countryname   = null;
-            $statename     = null;
-        }
-        return view('user.show')->with(
-            ['user'     => $users,
-            'country'   => $countryname,
-            'state'     => $statename
-            ]
-        );
+        // $country_name   = Country::find($users->country_id);
+        $countryname   = $users->country;
+        // $state_name     = State::find($users->state_id);
+        $statename      = $users->states;
+        $clients        = $users->clients;
+        return view('user.profile', [
+            "user"=>$users,
+            "country"=>$countryname,
+            "state"=>$statename,
+            "clients"=>$clients]);
     }
 }

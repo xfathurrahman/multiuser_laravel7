@@ -15,79 +15,110 @@
           </div>
           <!-- /.card-header -->
           <div class="card-body">
-                <div class="form-group row">
-                    <label for="first_name" class="col-md-4 col-form-label text-md-right">{{ __('First Name') }} *</label>
-                    <div class="col-md-6">
-                        {{$user->first_name}}
+            
+                <div class="row">
+                    <label class="col-md-2 ">{{ __('First Name') }} : </label>
+                    <div class="col-md-4">
+                    {{$user->first_name}}
+                    </div>
+                
+                    
+                    <label class="col-md-2  ">{{ __('Middle Name') }} : </label>
+                    <div class="col-md-4">
+                    {{$user->middle_name}}
                     </div>
                 </div>
 
-                <div class="form-group row">
-                    <label for="middle_name" class="col-md-4 col-form-label text-md-right">{{ __('Middle Name') }} *</label>
-                    <div class="col-md-6">
-                        {{$user->middle_name}}
+                <div class="row">
+                    <label class="col-md-2 ">{{ __('Last Name') }} : </label>
+                    <div class="col-md-4">
+                    {{$user->last_name}}
+                    </div>
+                    
+                    <label class="col-md-2 ">{{ __('Client Name') }} : </label>
+                    <div class="col-md-4">
+                    {{$clients->name}}
                     </div>
                 </div>
 
-                <div class="form-group row">
-                    <label class="col-md-4 col-form-label text-md-right">{{ __('Last Name') }} *</label>
-                    <div class="col-md-6">
-                        {{$user->last_name}}
-                    </div>
-                </div>
 
 
-                <div class="form-group row">
-                    <label for="dob" class="col-md-4 col-form-label text-md-right">{{ __('DOB') }} : </label>
-                    <div class="col-md-6">
-                        {{date('Y-m-d', strtotime($user->dob))}}
-                    </div>
-                </div>
-
-                <div class="form-group row">
-                    <label for="address" class="col-md-4 col-form-label text-md-right">{{ __('Address') }} : </label>
-                    <div class="col-md-6">
+                <div class="row">
+                    <label class="col-md-2">{{ __('Address') }} : </label>
+                    <div class="col-md-4">
                         {{$user->address}}
                     </div>
+                    <label class="col-md-2">{{ __('Mobile Number') }} : </label>
+                    <div class="col-md-4">
+                        {{$user->mobile}}
+                    </div>
                 </div>
 
-                <div class="form-group row">
-                    <label class="col-md-4 col-form-label text-md-right">{{ __('Country Name') }} : </label>
-                    <div class="col-md-6">
+                
+
+                <div class="row">
+                    <label class="col-md-2">{{ __('Country Name') }} : </label>
+                    <div class="col-md-4">
                         <!-- {{$user->countryname}} -->
                         {{$country->name}}
                     </div>
-                </div>
-
-                <div class="form-group row">
-                    <label class="col-md-4 col-form-label text-md-right">{{ __('State Name') }} : </label>
-                    <div class="col-md-6">
+                    
+                    <label class="col-md-2">{{ __('State Name') }} : </label>
+                    <div class="col-md-4">
                         <!-- {{$user->statename}} -->
                         {{$state->name}}
                     </div>
                 </div>
 
-                <div class="form-group row">
-                    <label class="col-md-4 col-form-label text-md-right">{{ __('Pincode') }}: </label>
-                    <div class="col-md-6">
-                        {{$user->pincode}}
-                    </div>
-                </div>
+                
 
-                <div class="form-group row">
-                    <label for="name" class="col-md-4 col-form-label text-md-right">{{ __('User Name') }} : </label>
-                    <div class="col-md-6">
+                <div class="row">
+                    <label class="col-md-2">{{ __('City') }} : </label>
+                    <div class="col-md-4">
+                        {{$user->city}}
+                    </div>
+
+                    <label class="col-md-2">{{ __('User Name') }} : </label>
+                    <div class="col-md-4">
                         {{$user->name}}
                     </div>
                 </div>
 
-                <div class="form-group row">
-                    <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }} : </label>
-                    <div class="col-md-6">
+                <div class="row">
+                    <label class="col-md-2">{{ __('E-Mail Address') }} : </label>
+                    <div class="col-md-4">
                         {{$user->email}}
+                    </div>
+
+                    <label class="col-md-2">{{ __('Gender') }} : </label>
+                    <div class="col-md-4">
+                        {{$user->gender}}
                     </div>
                 </div>
 
+                
+                
+                <div class="row">
+                    <label class="col-md-2 ">{{ __('Hobbies') }} : </label>
+                    <div class="col-md-4">
+                    <?php $hobbies=(is_null($user->hobbies))? []:explode(",", $user->hobbies); ?>
+                    @forelse($hobbies as $hobbie)
+                        <p>{{$hobbie}} </p>
+                    @empty
+                        {{ __('No Hobbies') }}
+                    @endforelse
+                    </div>
+                    <label  class="col-md-2 ">{{ __('Photo') }} </label>
+                    <div class="col-md-4">
+                    @if($user->profile_image)
+                        <img src="{{asset('/storage/profile_images/'.$user->profile_image)}}" width="40" />
+                        @else
+                        {{ __('No Photo') }}
+                    @endif
+                    </div>
+                </div>
+                
+                
           </div>
           <!-- /.card-body -->
         </div>
